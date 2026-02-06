@@ -1,6 +1,6 @@
 services:
   - type: worker
-    name: discord-ai-bot
+    name: discord-voice-ai
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: python main.py
