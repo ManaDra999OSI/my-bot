@@ -1,10 +1,7 @@
 discord.py
+discord-ext-voice-recv
 google-generativeai
 edge-tts
-PyNaCl
-ffmpeg-python
-discord.py
-google-generativeai
-edge-tts
+SpeechRecognition
 PyNaCl
 ffmpeg-python
