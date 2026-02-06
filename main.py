@@ -45,7 +45,6 @@ class Listener(voice_recv.AudioSink):
         self.vc = vc
 
     def write(self, user, data):
-
         with open("input.wav", "ab") as f:
             f.write(data.pcm)
 
@@ -68,7 +67,7 @@ class Listener(voice_recv.AudioSink):
 # -------- DISCORD --------
 @client.event
 async def on_ready():
-    print("Bot ouvindo!")
+    print("Bot online e ouvindo!")
 
 @client.event
 async def on_message(message):
@@ -81,7 +80,6 @@ async def on_message(message):
         if message.author.voice:
             canal = message.author.voice.channel
             vc = await canal.connect(cls=voice_recv.VoiceRecvClient)
-
             vc.listen(Listener(vc))
 
 client.run(TOKEN)
