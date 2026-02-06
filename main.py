@@ -1,5 +1,5 @@
 import discord
-from discord.ext import voice_recv
+from discord.ext import commands, voice_recv
 import google.generativeai as genai
 import edge_tts
 import speech_recognition as sr
@@ -16,7 +16,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
 
-client = voice_recv.VoiceRecvClient(intents=intents)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 recognizer = sr.Recognizer()
 
@@ -38,7 +38,7 @@ async def falar(texto, vc):
     while vc.is_playing():
         await asyncio.sleep(1)
 
-# -------- RECEBER AUDIO --------
+# -------- LISTENER --------
 class Listener(voice_recv.AudioSink):
 
     def __init__(self, vc):
@@ -49,35 +49,38 @@ class Listener(voice_recv.AudioSink):
             f.write(data.pcm)
 
     def cleanup(self):
-
         try:
             with sr.AudioFile("input.wav") as source:
                 audio = recognizer.record(source)
 
             texto = recognizer.recognize_google(audio, language="pt-BR")
-
             print("Usuário disse:", texto)
 
             resposta = asyncio.run(perguntar_gemini(texto))
             asyncio.run(falar(resposta, self.vc))
 
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
-# -------- DISCORD --------
-@client.event
+# -------- COMANDO ENTRAR --------
+@bot.command()
+async def entrar(ctx):
+
+    if ctx.author.voice:
+        canal = ctx.author.voice.channel
+
+        vc = await canal.connect(cls=voice_recv.VoiceRecvClient)
+        vc.listen(Listener(vc))
+
+        await ctx.send("Estou ouvindo 👂")
+
+# -------- READY --------
+@bot.event
 async def on_ready():
-    print("Bot online e ouvindo!")
+    print("Bot online!")
 
-@client.event
-async def on_message(message):
+bot.run(TOKEN)
 
-    if message.author.bot:
-        return
-
-    if message.content == "!entrar":
-
-        if message.author.voice:
             canal = message.author.voice.channel
             vc = await canal.connect(cls=voice_recv.VoiceRecvClient)
             vc.listen(Listener(vc))
